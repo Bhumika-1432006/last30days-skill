@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import MagicMock, patch
 
 from lib.tiktok import _parse_items
 
@@ -237,6 +238,65 @@ class TestTikTokEnrichWithComments(unittest.TestCase):
         self.assertIn("top_comments", by_id["high"])
         self.assertIn("top_comments", by_id["mid"])
         self.assertNotIn("top_comments", by_id["low"])
+
+class TestTikTokArabicTopicEncoding(unittest.TestCase):
+    """Regression for issue #817: Arabic-script topics must not cause UnicodeEncodeError.
+
+    search_tiktok() passes the topic as a `params` dict to http.get(), which
+    must percent-encode it before handing it to urllib (http.client uses latin-1
+    internally). These tests verify no UnicodeEncodeError is raised and that the
+    URL reaching urllib is pure ASCII.
+    """
+
+    def _sent_url(self, mock_urlopen) -> str:
+        return mock_urlopen.call_args[0][0].full_url
+
+    @patch("lib.http.urllib.request.urlopen")
+    def test_arabic_topic_does_not_raise_unicode_encode_error(self, mock_urlopen):
+        from lib.tiktok import search_tiktok
+        resp = MagicMock()
+        resp.__enter__ = MagicMock(return_value=resp)
+        resp.__exit__ = MagicMock(return_value=False)
+        resp.read.return_value = b'{"search_item_list": []}'
+        resp.status = 200
+        mock_urlopen.return_value = resp
+
+        # Must not raise — this is the exact topic from the bug report.
+        try:
+            search_tiktok(
+                "اسعار التمريض المنزلي السعودية",
+                "2026-06-01",
+                "2026-07-13",
+                depth="quick",
+                token="dummy-key",
+            )
+        except UnicodeEncodeError as exc:
+            self.fail(f"search_tiktok raised UnicodeEncodeError on Arabic topic: {exc}")
+
+    @patch("lib.http.urllib.request.urlopen")
+    def test_arabic_topic_url_is_ascii(self, mock_urlopen):
+        from lib.tiktok import search_tiktok
+        resp = MagicMock()
+        resp.__enter__ = MagicMock(return_value=resp)
+        resp.__exit__ = MagicMock(return_value=False)
+        resp.read.return_value = b'{"search_item_list": []}'
+        resp.status = 200
+        mock_urlopen.return_value = resp
+
+        search_tiktok(
+            "اسعار التمريض",
+            "2026-06-01",
+            "2026-07-13",
+            depth="quick",
+            token="dummy-key",
+        )
+        sent_url = self._sent_url(mock_urlopen)
+        # Raises AssertionError (not UnicodeEncodeError) if any non-ASCII leaked through.
+        try:
+            sent_url.encode("ascii")
+        except UnicodeEncodeError:
+            self.fail(f"URL sent to urllib contains non-ASCII characters: {sent_url!r}")
+
 
 if __name__ == "__main__":
     unittest.main()
