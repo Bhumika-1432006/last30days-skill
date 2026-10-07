@@ -271,7 +271,7 @@ class TestInstagramArabicTopicEncoding(unittest.TestCase):
         mock_urlopen.return_value = resp
 
         try:
-            instagram.search_instagram(
+            result = instagram.search_instagram(
                 "اسعار التمريض المنزلي السعودية",
                 "2026-06-01",
                 "2026-07-13",
@@ -280,6 +280,9 @@ class TestInstagramArabicTopicEncoding(unittest.TestCase):
             )
         except UnicodeEncodeError as exc:
             self.fail(f"search_instagram raised UnicodeEncodeError on Arabic topic: {exc}")
+        # If UnicodeEncodeError was swallowed internally and returned as an error
+        # field, the fix isn't actually working — assert the result is clean.
+        self.assertNotIn("error", result)
 
     @patch("lib.http.urllib.request.urlopen")
     def test_arabic_topic_url_is_ascii(self, mock_urlopen):

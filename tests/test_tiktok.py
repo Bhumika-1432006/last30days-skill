@@ -263,7 +263,7 @@ class TestTikTokArabicTopicEncoding(unittest.TestCase):
 
         # Must not raise — this is the exact topic from the bug report.
         try:
-            search_tiktok(
+            result = search_tiktok(
                 "اسعار التمريض المنزلي السعودية",
                 "2026-06-01",
                 "2026-07-13",
@@ -272,6 +272,9 @@ class TestTikTokArabicTopicEncoding(unittest.TestCase):
             )
         except UnicodeEncodeError as exc:
             self.fail(f"search_tiktok raised UnicodeEncodeError on Arabic topic: {exc}")
+        # If UnicodeEncodeError was swallowed internally and returned as an error
+        # field, the fix isn't actually working — assert the result is clean.
+        self.assertNotIn("error", result)
 
     @patch("lib.http.urllib.request.urlopen")
     def test_arabic_topic_url_is_ascii(self, mock_urlopen):
