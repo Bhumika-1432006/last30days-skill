@@ -250,5 +250,59 @@ class TestTranscriptTimeoutConfig(unittest.TestCase):
             kwargs = mock_http_get.call_args.kwargs
             self.assertEqual(kwargs["timeout"], 30.0)
 
+class TestInstagramArabicTopicEncoding(unittest.TestCase):
+    """Regression for issue #817: Arabic-script topics must not cause UnicodeEncodeError.
+
+    search_instagram() passes the topic as a `params` dict to http.get(), which
+    must percent-encode it before handing it to urllib. These tests confirm the
+    fix at the http layer holds for the Instagram search path specifically.
+    """
+
+    def _sent_url(self, mock_urlopen) -> str:
+        return mock_urlopen.call_args[0][0].full_url
+
+    @patch("lib.http.urllib.request.urlopen")
+    def test_arabic_topic_does_not_raise_unicode_encode_error(self, mock_urlopen):
+        resp = MagicMock()
+        resp.__enter__ = MagicMock(return_value=resp)
+        resp.__exit__ = MagicMock(return_value=False)
+        resp.read.return_value = b'{"reels": []}'
+        resp.status = 200
+        mock_urlopen.return_value = resp
+
+        try:
+            instagram.search_instagram(
+                "اسعار التمريض المنزلي السعودية",
+                "2026-06-01",
+                "2026-07-13",
+                depth="quick",
+                token="dummy-key",
+            )
+        except UnicodeEncodeError as exc:
+            self.fail(f"search_instagram raised UnicodeEncodeError on Arabic topic: {exc}")
+
+    @patch("lib.http.urllib.request.urlopen")
+    def test_arabic_topic_url_is_ascii(self, mock_urlopen):
+        resp = MagicMock()
+        resp.__enter__ = MagicMock(return_value=resp)
+        resp.__exit__ = MagicMock(return_value=False)
+        resp.read.return_value = b'{"reels": []}'
+        resp.status = 200
+        mock_urlopen.return_value = resp
+
+        instagram.search_instagram(
+            "اسعار التمريض",
+            "2026-06-01",
+            "2026-07-13",
+            depth="quick",
+            token="dummy-key",
+        )
+        sent_url = self._sent_url(mock_urlopen)
+        try:
+            sent_url.encode("ascii")
+        except UnicodeEncodeError:
+            self.fail(f"URL sent to urllib contains non-ASCII characters: {sent_url!r}")
+
+
 if __name__ == "__main__":
     unittest.main()

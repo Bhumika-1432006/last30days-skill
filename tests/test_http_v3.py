@@ -230,6 +230,40 @@ class TestParamsEncoding(unittest.TestCase):
         self.assertIn("count=25", sent_url)
         self.assertIn("raw=True", sent_url)
 
+    @patch("lib.http.urllib.request.urlopen")
+    def test_arabic_query_param_is_percent_encoded(self, mock_urlopen):
+        # Regression for issue #817: Arabic-script topics must be percent-encoded
+        # before reaching http.client, which encodes headers/URLs with latin-1.
+        mock_urlopen.return_value = _mock_response()
+        arabic_topic = "اسعار التمريض المنزلي"
+        http.get("https://api.scrapecreators.com/v1/tiktok/search/keyword",
+                 params={"query": arabic_topic})
+        sent_url = self._sent_url(mock_urlopen)
+        # The URL sent to urllib must contain only ASCII characters.
+        sent_url.encode("ascii")  # raises UnicodeEncodeError if non-ASCII slips through
+        # Arabic alef (U+0627) encodes to %D8%A7 in UTF-8 percent-encoding.
+        self.assertIn("%D8%A7", sent_url)
+        self.assertNotIn("اسعار", sent_url)
+
+    @patch("lib.http.urllib.request.urlopen")
+    def test_cjk_query_param_is_percent_encoded(self, mock_urlopen):
+        # Same fix covers CJK and other non-Latin scripts.
+        mock_urlopen.return_value = _mock_response()
+        http.get("https://api.example.com/search", params={"q": "人工智能"})
+        sent_url = self._sent_url(mock_urlopen)
+        sent_url.encode("ascii")
+        self.assertNotIn("人工智能", sent_url)
+
+    @patch("lib.http.urllib.request.urlopen")
+    def test_non_ascii_in_base_url_path_is_percent_encoded(self, mock_urlopen):
+        # A non-ASCII character that ends up in the URL path (e.g. from a cached
+        # library query reused verbatim) must also be encoded at the request layer.
+        mock_urlopen.return_value = _mock_response()
+        http.get("https://api.example.com/search/العربية")
+        sent_url = self._sent_url(mock_urlopen)
+        sent_url.encode("ascii")
+        self.assertNotIn("ا", sent_url)
+
 
 class TestDNSResolutionRetry(unittest.TestCase):
     """DNS resolution failures (gaierror) must retry with exponential backoff.
