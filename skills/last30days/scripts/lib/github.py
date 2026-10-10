@@ -210,6 +210,13 @@ _WRAPPED_QUALIFIER_RE = re.compile(
 # real text stays.
 _EMPTY_WRAPPER_RE = re.compile(r"\(\s*\)|\[\s*\]|\"\s*\"|'\s*'")
 
+# Lone opener left by an unbalanced wrapper shape (e.g. `(created:>2025-03-20`
+# → strips the qualifier, leaves a stray `(`). Only matches when the character
+# is isolated — surrounded by whitespace or at the string boundary — so it
+# never touches unmatched parens that are legitimately part of topic text
+# (e.g. "ai (foo bar" keeps its `(`).
+_LONE_WRAPPER_OPENER_RE = re.compile(r"(?<!\S)[(\[](?!\S)")
+
 
 def strip_search_qualifiers(text: str) -> str:
     """Strip GitHub search qualifiers from a topic, leaving plain-language text.
@@ -225,6 +232,9 @@ def strip_search_qualifiers(text: str) -> str:
         if cleaned == stripped:
             break
         stripped = cleaned
+    # Remove lone opener chars that are only surrounded by whitespace — residue
+    # from unbalanced wrapper shapes after the qualifier was stripped (#969).
+    stripped = _LONE_WRAPPER_OPENER_RE.sub(" ", stripped)
     return " ".join(stripped.split())
 
 

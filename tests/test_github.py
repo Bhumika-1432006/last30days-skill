@@ -595,6 +595,34 @@ class TestStripSearchQualifiers(unittest.TestCase):
         result = github.strip_search_qualifiers("(created:>2025-03-20")
         self.assertNotIn("created:", result)
 
+    def test_unbalanced_opener_leaves_no_stray_paren(self):
+        # Regression for #969: the isolated `(` left after stripping an
+        # unbalanced-wrapper qualifier must not appear in the result.
+        result = github.strip_search_qualifiers("(created:>2025-03-20")
+        self.assertNotIn("(", result)
+        self.assertEqual(result, "")
+
+    def test_unbalanced_bracket_leaves_no_stray_bracket(self):
+        result = github.strip_search_qualifiers("[stars:>100")
+        self.assertNotIn("[", result)
+        self.assertEqual(result, "")
+
+    def test_unbalanced_opener_with_topic_text_preserved(self):
+        # Stray opener at the start, followed by real topic text.
+        result = github.strip_search_qualifiers("(created:>2025-03-20 machine learning")
+        self.assertNotIn("created:", result)
+        self.assertNotIn("(", result)
+        self.assertIn("machine learning", result)
+
+    def test_legitimate_unmatched_paren_in_topic_preserved(self):
+        # An unmatched `(` that is part of real text (adjacent to non-space
+        # on at least one side) must not be stripped — it is not qualifier
+        # residue (#969 fix must not mangle ordinary topic text).
+        result = github.strip_search_qualifiers("ai (foo bar")
+        self.assertIn("(", result)
+        self.assertIn("ai", result)
+        self.assertIn("foo", result)
+
     def test_quote_wrapped_with_space_inside_does_not_leak_qualifier(self):
         # '"created:>2025-03-20 abc"' has a space in the quoted value, so it is
         # not a single wrapper pair; the qualifier itself must still not reach
