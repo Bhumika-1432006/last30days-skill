@@ -726,6 +726,7 @@ def classify_failure(*, status_code: Optional[int] = None, message: str = "") ->
             "status 403",
             "unauthorized",
             "forbidden",
+            "permission-denied",
             "authentication failed",
             "expired token",
             "not signed in",

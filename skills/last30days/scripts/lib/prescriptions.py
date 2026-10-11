@@ -102,6 +102,20 @@ REGISTRY: Dict[Tuple[str, str], Prescription] = dict((
         anchor="api-keys-env",
     ),
     _entry(
+        "x", "xai_key_rejected",
+        cause=(
+            "xAI rejected the API key (401/403): the key's endpoint or model "
+            "permissions are not set correctly in console.x.ai"
+        ),
+        fix_nl=(
+            "check the key's permissions in console.x.ai (it needs the chat "
+            "endpoint; if the default model isn't allowed, set LAST30DAYS_X_MODEL "
+            "to an available model, e.g. grok-4.20-0309-non-reasoning)"
+        ),
+        fix_cli="LAST30DAYS_X_MODEL=grok-4.20-0309-non-reasoning",
+        anchor="api-keys-env",
+    ),
+    _entry(
         "x", "xai_payment_required",
         cause="the xAI X search backend has no available credits",
         fix_nl="check xAI billing and credits in console.x.ai, then re-run",
