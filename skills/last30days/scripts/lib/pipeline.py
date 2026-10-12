@@ -2024,6 +2024,8 @@ def diagnose(
         native_web_backend = "serper"
     elif config.get("PARALLEL_API_KEY"):
         native_web_backend = "parallel"
+    elif config.get("KAGI_API_KEY"):
+        native_web_backend = "kagi"
     providers_status = {
         "google": bool(google_key),
         "openai": bool(config.get("OPENAI_API_KEY")) and config.get("OPENAI_AUTH_STATUS") == env.AUTH_STATUS_OK,
@@ -2322,7 +2324,7 @@ def run(
         available.append("corpus")
     if web_backend == "none":
         available = [s for s in available if s != "grounding"]
-    elif web_backend in ("brave", "exa", "serper", "parallel", "parallel-mcp", "keyless") and "grounding" not in available:
+    elif web_backend in ("brave", "exa", "serper", "parallel", "parallel-mcp", "kagi", "keyless") and "grounding" not in available:
         available.append("grounding")
     if (
         hiring_signals_mode
