@@ -623,10 +623,11 @@ Relevant tables: `topics`, `research_runs`, `findings`, `settings`. Schema: [`sc
 rm ~/.local/share/last30days/research.db
 ```
 
-If you set `LAST30DAYS_MEMORY_DIR`, the database lives at `$LAST30DAYS_MEMORY_DIR/research.db` instead of the default path above. To purge that:
+If you set `LAST30DAYS_MEMORY_DIR`, the database lives at `<memory-dir>/research.db` instead of the default path above. If that variable is set only in your `.env` file (not exported in your shell), your shell won't expand `$LAST30DAYS_MEMORY_DIR`, so resolve the path first and pass it directly:
 
 ```bash
-rm "$LAST30DAYS_MEMORY_DIR/research.db"
+# Replace /path/to/memory with your actual LAST30DAYS_MEMORY_DIR value
+rm /path/to/memory/research.db
 ```
 
 The engine recreates an empty database on the next `--store` run. With `--save-dir`, a scoped `research.db` lives inside that directory instead; delete that path to purge scoped runs.
