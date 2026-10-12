@@ -811,16 +811,29 @@ class KagiSearchTests(unittest.TestCase):
         self.assertEqual(1, len(items))
         self.assertEqual("https://example.com/valid", items[0]["url"])
 
-    def test_kagi_search_no_published_date_passes_through(self):
+    def test_kagi_search_no_published_date_passes_through_current_window(self):
+        mock_response = {
+            "data": [
+                {"t": 0, "url": "https://example.com/nodatearticle", "title": "No Date", "snippet": "x"},
+            ]
+        }
+        # Use a window that ends in the far future to ensure current_window=True
+        # without needing to pin the clock.
+        future_end = "2099-12-31"
+        with patch.object(grounding.http, "request", return_value=mock_response):
+            items, _ = grounding.kagi_search("test", ("2026-03-01", future_end), "fake-key")
+        self.assertEqual(1, len(items))
+        self.assertIsNone(items[0]["date"])
+
+    def test_kagi_search_no_published_date_dropped_on_historical_window(self):
         mock_response = {
             "data": [
                 {"t": 0, "url": "https://example.com/nodatearticle", "title": "No Date", "snippet": "x"},
             ]
         }
         with patch.object(grounding.http, "request", return_value=mock_response):
-            items, _ = grounding.kagi_search("test", ("2026-03-01", "2026-03-31"), "fake-key")
-        self.assertEqual(1, len(items))
-        self.assertIsNone(items[0]["date"])
+            items, _ = grounding.kagi_search("test", ("2025-01-01", "2025-01-31"), "fake-key")
+        self.assertEqual(0, len(items))
 
     def test_web_search_dispatcher_routes_kagi(self):
         config = {"KAGI_API_KEY": "test-kagi-key"}

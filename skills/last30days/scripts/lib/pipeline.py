@@ -432,6 +432,7 @@ def available_sources(
     # engine leaves general web to the model's own search.
     if (config.get("BRAVE_API_KEY") or config.get("EXA_API_KEY")
             or config.get("SERPER_API_KEY") or config.get("PARALLEL_API_KEY")
+            or config.get("KAGI_API_KEY")
             or env.keyless_web_allowed(config)):
         available.append("grounding")
     if requested_sources and "jobs" in requested_sources:
