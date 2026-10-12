@@ -1853,5 +1853,51 @@ class TestYtdlpPlayerClient(unittest.TestCase):
         self.assertEqual(youtube_yt._inject_youtube_player_client(cmd), cmd)
 
 
+class TestYoutubeProxy(unittest.TestCase):
+    """_ytdlp_proxy reads YOUTUBE_PROXY / YT_PROXY and _wrap_ytdlp_cmd injects it."""
+
+    def setUp(self):
+        for key in ("YOUTUBE_PROXY", "YT_PROXY"):
+            os.environ.pop(key, None)
+
+    def tearDown(self):
+        for key in ("YOUTUBE_PROXY", "YT_PROXY"):
+            os.environ.pop(key, None)
+
+    def test_no_env_returns_none(self):
+        self.assertIsNone(youtube_yt._ytdlp_proxy())
+
+    def test_youtube_proxy_env(self):
+        os.environ["YOUTUBE_PROXY"] = "socks5://127.0.0.1:1080"
+        self.assertEqual(youtube_yt._ytdlp_proxy(), "socks5://127.0.0.1:1080")
+
+    def test_yt_proxy_alias(self):
+        os.environ["YT_PROXY"] = "http://proxy:3128"
+        self.assertEqual(youtube_yt._ytdlp_proxy(), "http://proxy:3128")
+
+    def test_youtube_proxy_takes_precedence_over_yt_proxy(self):
+        os.environ["YOUTUBE_PROXY"] = "socks5://a:1"
+        os.environ["YT_PROXY"] = "http://b:2"
+        self.assertEqual(youtube_yt._ytdlp_proxy(), "socks5://a:1")
+
+    def test_empty_env_returns_none(self):
+        os.environ["YOUTUBE_PROXY"] = "   "
+        self.assertIsNone(youtube_yt._ytdlp_proxy())
+
+    def test_wrap_cmd_injects_proxy(self):
+        os.environ["YOUTUBE_PROXY"] = "socks5://127.0.0.1:1080"
+        os.environ.pop("LAST30DAYS_YOUTUBE_SSH_HOST", None)
+        cmd = ["yt-dlp", "--ignore-config", "ytsearch5:test", "--dump-json"]
+        result = youtube_yt._wrap_ytdlp_cmd(cmd)
+        self.assertIn("--proxy", result)
+        self.assertIn("socks5://127.0.0.1:1080", result)
+
+    def test_wrap_cmd_no_proxy_when_unset(self):
+        os.environ.pop("LAST30DAYS_YOUTUBE_SSH_HOST", None)
+        cmd = ["yt-dlp", "--ignore-config", "ytsearch5:test", "--dump-json"]
+        result = youtube_yt._wrap_ytdlp_cmd(cmd)
+        self.assertNotIn("--proxy", result)
+
+
 if __name__ == "__main__":
     unittest.main()

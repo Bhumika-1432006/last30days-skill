@@ -401,6 +401,19 @@ def _inject_youtube_player_client(cmd: List[str]) -> List[str]:
     return out
 
 
+def _ytdlp_proxy() -> Optional[str]:
+    """Return the proxy URL for yt-dlp, or None when unset.
+
+    Set ``YOUTUBE_PROXY`` (or ``YT_PROXY``) to any proxy URL that yt-dlp
+    accepts: ``socks5://127.0.0.1:1080``, ``http://proxy:3128``, etc.
+    ``YOUTUBE_PROXY`` takes precedence over ``YT_PROXY``.  Only routes
+    yt-dlp traffic through the proxy — other HTTP requests the skill makes
+    are unaffected (use ``HTTP_PROXY`` / ``HTTPS_PROXY`` for those).
+    """
+    proxy = os.environ.get("YOUTUBE_PROXY", "").strip() or os.environ.get("YT_PROXY", "").strip()
+    return proxy or None
+
+
 def _wrap_ytdlp_cmd(cmd: List[str]) -> List[str]:
     """Wrap a yt-dlp command list with `ssh <host>` when SSH routing is set.
 
@@ -410,6 +423,9 @@ def _wrap_ytdlp_cmd(cmd: List[str]) -> List[str]:
     LAST30DAYS_YOUTUBE_SSH_HOST were ever set to a value starting with `-`.
     """
     cmd = _inject_youtube_player_client(cmd)
+    proxy = _ytdlp_proxy()
+    if proxy:
+        cmd = list(cmd) + ["--proxy", proxy]
     host = _ytdlp_ssh_host()
     if not host:
         return cmd
@@ -900,6 +916,9 @@ def _fetch_transcript_ytdlp(
         f"https://www.youtube.com/watch?v={video_id}",
     ]
     cmd = _inject_youtube_player_client(cmd)
+    proxy = _ytdlp_proxy()
+    if proxy:
+        cmd = list(cmd) + ["--proxy", proxy]
 
     timeout = _transcript_fast_timeout() if fast_fail else _TRANSCRIPT_TIMEOUT
     attempts = 1 if fast_fail else _TRANSCRIPT_MAX_RETRIES + 1
