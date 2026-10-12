@@ -303,6 +303,7 @@ def _run_npx_install(slug: str) -> Tuple[str, str]:
         return "no_npx", ""
     print(
         f"Installing {slug} CLI via npx ({PRINTING_PRESS_NPM} --cli-only) ...",
+        file=sys.stderr,
         flush=True,
     )
     try:

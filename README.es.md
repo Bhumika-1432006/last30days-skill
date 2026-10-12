@@ -381,7 +381,7 @@ Consulta [CONTRIBUTING.md](CONTRIBUTING.md) para abrir un PR, [CONTRIBUTORS.md](
 
 Por defecto, la herramienta funciona completamente en tu máquina — ningún dato la abandona salvo hacia las APIs de búsqueda que uses (Reddit, ScrapeCreators, etc.).
 
-**Reranking.** Si configuras un proveedor de razonamiento (`OPENAI_API_KEY`, `XAI_API_KEY` o `OPENROUTER_API_KEY`), el motor envía tu tema de investigación y fragmentos de contenido recuperado a ese proveedor para puntuar la relevancia. Es opcional: sin clave de razonamiento, el motor usa un modelo de puntuación local sin ninguna llamada externa.
+**Reranking.** Si configuras un proveedor de razonamiento (`OPENAI_API_KEY`, `XAI_API_KEY`, `OPENROUTER_API_KEY`, `GOOGLE_API_KEY`, `GEMINI_API_KEY` o `GOOGLE_GENAI_API_KEY`), el motor envía tu tema de investigación y fragmentos de contenido recuperado a ese proveedor para puntuar la relevancia. Es opcional: sin clave de razonamiento, el motor usa un modelo de puntuación local sin ninguna llamada externa.
 
 **Almacenamiento local.** Con `LAST30DAYS_STORE=1`, los hallazgos se guardan en una base de datos SQLite local (`~/.local/share/last30days/research.db`). No se envía ningún dato a servicios remotos. Consulta [CONFIGURATION.md](CONFIGURATION.md) para los detalles de retención e instrucciones de purga.
 

@@ -623,6 +623,12 @@ Relevant tables: `topics`, `research_runs`, `findings`, `settings`. Schema: [`sc
 rm ~/.local/share/last30days/research.db
 ```
 
+If you set `LAST30DAYS_MEMORY_DIR`, the database lives at `$LAST30DAYS_MEMORY_DIR/research.db` instead of the default path above. To purge that:
+
+```bash
+rm "$LAST30DAYS_MEMORY_DIR/research.db"
+```
+
 The engine recreates an empty database on the next `--store` run. With `--save-dir`, a scoped `research.db` lives inside that directory instead; delete that path to purge scoped runs.
 
 ### Discovery topic queue (`LAST30DAYS_DISCOVERY_QUEUE`)

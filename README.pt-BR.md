@@ -381,7 +381,7 @@ Veja [CONTRIBUTING.md](CONTRIBUTING.md) para abrir um PR, [CONTRIBUTORS.md](CONT
 
 Por padrão, a ferramenta roda inteiramente na sua máquina — nenhum dado sai do seu dispositivo, exceto para as APIs de busca que você utiliza (Reddit, ScrapeCreators, etc.).
 
-**Reranking.** Se você configurar um provedor de raciocínio (`OPENAI_API_KEY`, `XAI_API_KEY` ou `OPENROUTER_API_KEY`), o motor envia seu tema de pesquisa e trechos de conteúdo recuperado para esse provedor pontuar a relevância. É opcional: sem chave de raciocínio, o motor usa um modelo de pontuação local sem nenhuma chamada externa.
+**Reranking.** Se você configurar um provedor de raciocínio (`OPENAI_API_KEY`, `XAI_API_KEY`, `OPENROUTER_API_KEY`, `GOOGLE_API_KEY`, `GEMINI_API_KEY` ou `GOOGLE_GENAI_API_KEY`), o motor envia seu tema de pesquisa e trechos de conteúdo recuperado para esse provedor pontuar a relevância. É opcional: sem chave de raciocínio, o motor usa um modelo de pontuação local sem nenhuma chamada externa.
 
 **Armazenamento local.** Com `LAST30DAYS_STORE=1`, os resultados são persistidos em um banco de dados SQLite local (`~/.local/share/last30days/research.db`). Nenhum dado é enviado a serviços remotos. Consulte [CONFIGURATION.md](CONFIGURATION.md) para detalhes de retenção e instruções de limpeza.
 

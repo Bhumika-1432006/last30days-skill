@@ -381,7 +381,7 @@ Wie du einen PR aufmachst, steht in [CONTRIBUTING.md](CONTRIBUTING.md), die voll
 
 Standardmäßig läuft das Tool vollständig auf deinem Rechner — keine Daten verlassen dein Gerät, außer an die von dir genutzten Such-APIs (Reddit, ScrapeCreators usw.).
 
-**Reranking.** Wenn du einen Reasoning-Provider konfigurierst (`OPENAI_API_KEY`, `XAI_API_KEY` oder `OPENROUTER_API_KEY`), sendet das Engine dein Recherchethema und abgerufene Inhaltsausschnitte an diesen Provider zum Relevanz-Scoring. Das ist optional: Ohne Reasoning-Key verwendet die Engine ein lokales Scoring-Modell — kein externer Aufruf wird getätigt.
+**Reranking.** Wenn du einen Reasoning-Provider konfigurierst (`OPENAI_API_KEY`, `XAI_API_KEY`, `OPENROUTER_API_KEY`, `GOOGLE_API_KEY`, `GEMINI_API_KEY` oder `GOOGLE_GENAI_API_KEY`), sendet das Engine dein Recherchethema und abgerufene Inhaltsausschnitte an diesen Provider zum Relevanz-Scoring. Das ist optional: Ohne Reasoning-Key verwendet die Engine ein lokales Scoring-Modell — kein externer Aufruf wird getätigt.
 
 **Lokaler Speicher.** Mit `LAST30DAYS_STORE=1` werden Ergebnisse in einer lokalen SQLite-Datenbank gespeichert (`~/.local/share/last30days/research.db`). Es werden keine Daten an einen Remote-Dienst gesendet. Einzelheiten zur Aufbewahrung und Löschanleitung findest du in [CONFIGURATION.md](CONFIGURATION.md).
 

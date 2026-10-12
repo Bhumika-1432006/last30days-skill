@@ -380,7 +380,7 @@ PRの出し方は [CONTRIBUTING.md](CONTRIBUTING.md)、コミュニティの貢�
 
 デフォルトでは、ツールはすべてあなたのマシン上で動作します。利用する検索API（Reddit、ScrapeCreatorsなど）以外、データは外部に送信されません。
 
-**リランキング。** 推論プロバイダー（`OPENAI_API_KEY`、`XAI_API_KEY`、または `OPENROUTER_API_KEY`）を設定した場合、エンジンはリリバンスのスコアリングのために研究テーマと取得したコンテンツのスニペットをそのプロバイダーに送信します。これはオプションです：推論キーを設定しない場合、エンジンはローカルスコアリングモデルを使用し、外部への呼び出しは行われません。
+**リランキング。** 推論プロバイダー（`OPENAI_API_KEY`、`XAI_API_KEY`、`OPENROUTER_API_KEY`、`GOOGLE_API_KEY`、`GEMINI_API_KEY`、または `GOOGLE_GENAI_API_KEY`）を設定した場合、エンジンはリリバンスのスコアリングのために研究テーマと取得したコンテンツのスニペットをそのプロバイダーに送信します。これはオプションです：推論キーを設定しない場合、エンジンはローカルスコアリングモデルを使用し、外部への呼び出しは行われません。
 
 **ローカルストレージ。** `LAST30DAYS_STORE=1` を設定すると、結果はローカルの SQLite データベース（`~/.local/share/last30days/research.db`）に保存されます。リモートサービスへのデータ送信はありません。保存期間の詳細とデータ削除の方法は [CONFIGURATION.md](CONFIGURATION.md) を参照してください。
 

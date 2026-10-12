@@ -380,9 +380,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) to open a PR, [CONTRIBUTORS.md](CONTRIBUT
 
 By default the skill runs entirely on your machine — no data leaves except to the search APIs you call (Reddit, ScrapeCreators, etc.).
 
-**Reranking.** When you configure a reasoning provider (`OPENAI_API_KEY`, `XAI_API_KEY`, or `OPENROUTER_API_KEY`), the engine sends your research topic and retrieved content snippets to that provider for relevance scoring. This is opt-in: if you set no reasoning key, the engine falls back to a local scoring model and no external reranking call is made. See [CONFIGURATION.md](CONFIGURATION.md) for provider priority.
+**Reranking.** When you configure a reasoning provider (`OPENAI_API_KEY`, `XAI_API_KEY`, `OPENROUTER_API_KEY`, `GOOGLE_API_KEY`, `GEMINI_API_KEY`, or `GOOGLE_GENAI_API_KEY`), the engine sends your research topic and retrieved content snippets to that provider for relevance scoring. This is opt-in: if you set no reasoning key, the engine falls back to a local scoring model and no external reranking call is made. See [CONFIGURATION.md](CONFIGURATION.md) for provider priority.
 
-**Local store.** When `LAST30DAYS_STORE=1` is set, findings are persisted to a local SQLite database (`~/.local/share/last30days/research.db`). No data is sent to any remote service; the database stays on your machine. See [CONFIGURATION.md — `--store` flag](CONFIGURATION.md) for retention details and purge instructions.
+**Local store.** When `LAST30DAYS_STORE=1` is set, findings are persisted to a local SQLite database (`~/.local/share/last30days/research.db`, or `$LAST30DAYS_MEMORY_DIR/research.db` when that variable is set). No data is sent to any remote service; the database stays on your machine. See [CONFIGURATION.md — `--store` flag](CONFIGURATION.md) for retention details and purge instructions.
 
 ## Star History
 

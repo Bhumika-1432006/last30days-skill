@@ -381,7 +381,7 @@ Voir [CONTRIBUTING.md](CONTRIBUTING.md) pour ouvrir une PR, [CONTRIBUTORS.md](CO
 
 Par défaut, l'outil fonctionne entièrement sur votre machine — aucune donnée ne quitte votre appareil, sauf vers les API de recherche que vous appelez (Reddit, ScrapeCreators, etc.).
 
-**Reclassement (reranking).** Si vous configurez un fournisseur de raisonnement (`OPENAI_API_KEY`, `XAI_API_KEY` ou `OPENROUTER_API_KEY`), le moteur envoie votre sujet de recherche et des extraits de contenu récupérés à ce fournisseur pour le scoring de pertinence. C'est optionnel : sans clé de raisonnement, le moteur utilise un modèle de scoring local et aucun appel externe n'est effectué.
+**Reclassement (reranking).** Si vous configurez un fournisseur de raisonnement (`OPENAI_API_KEY`, `XAI_API_KEY`, `OPENROUTER_API_KEY`, `GOOGLE_API_KEY`, `GEMINI_API_KEY` ou `GOOGLE_GENAI_API_KEY`), le moteur envoie votre sujet de recherche et des extraits de contenu récupérés à ce fournisseur pour le scoring de pertinence. C'est optionnel : sans clé de raisonnement, le moteur utilise un modèle de scoring local et aucun appel externe n'est effectué.
 
 **Stockage local.** Avec `LAST30DAYS_STORE=1`, les résultats sont persistés dans une base SQLite locale (`~/.local/share/last30days/research.db`). Aucune donnée n'est envoyée à un service distant. Voir [CONFIGURATION.md](CONFIGURATION.md) pour les détails de rétention et les instructions de purge.
 
