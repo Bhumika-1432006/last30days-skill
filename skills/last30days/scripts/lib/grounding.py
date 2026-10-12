@@ -302,8 +302,11 @@ def kagi_search(
     Kagi returns items with ``t=0`` (web result) or ``t=1`` (related search);
     only ``t=0`` items are surfaced.  ``published`` is an ISO-8601 date string
     when available.  The API does not support server-side date filtering, so
-    ``_known_date_out_of_range`` is applied client-side.
+    date bounds are enforced client-side: items with a known out-of-range date
+    are dropped, and undated items are also dropped for historical windows where
+    the window end is in the past.
     """
+    current_window = date_range[1] >= datetime.now(timezone.utc).date().isoformat()
     url = (
         "https://kagi.com/api/v0/search?"
         + urllib.parse.urlencode({"q": query, "limit": count})
@@ -326,6 +329,8 @@ def kagi_search(
         pub_date = _normalize_date(raw_date[:10]) if raw_date else None
         if _known_date_out_of_range(pub_date, date_range):
             continue
+        if pub_date is None and not current_window:
+            continue
         items.append({
             "id": f"WK{i + 1}",
             "title": r.get("title", ""),
@@ -335,7 +340,9 @@ def kagi_search(
             "date": pub_date,
             "relevance": 0.8,
             "why_relevant": "Kagi web search",
-            "metadata": {"date_window_basis": "server_bounds"},
+            "metadata": {
+                "date_window_basis": "client_filtered_current" if current_window else "client_filtered"
+            },
         })
     artifact = {"label": "kagi", "webSearchQueries": [query], "resultCount": len(items)}
     return items, artifact
