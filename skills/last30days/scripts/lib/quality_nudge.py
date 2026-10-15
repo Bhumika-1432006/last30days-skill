@@ -60,31 +60,12 @@ def _has_x_credentials(config: dict) -> bool:
     return False
 
 
-def _x_active_backend_is_xai(config: dict) -> bool:
-    """Return True when the effective X backend is the xAI/Grok API key lane.
-
-    Checks an explicit pin first; falls back to the auto-chain heuristic: xAI
-    key present and no higher-priority bird-cookie credentials configured.
-    """
-    pin = env.x_backend_pin(config)
-    if pin:
-        return pin == "xai"
-    return bool(config.get("XAI_API_KEY")) and not (
-        config.get("AUTH_TOKEN") and config.get("CT0")
-    )
-
-
 def _x_error_prescription(config: dict, research_results: dict) -> prescriptions.Prescription:
     """The fix for a configured X that errored, routed through the X policy.
 
     The pipeline stamps the failed backend into ``x_error`` or
     ``x_degraded_error``, sometimes behind a simplified-query retry label.
-    Use that runtime provenance before the host policy. On an official-only
-    host a credit-exhaustion error asks for a top-up (``payment_required``)
-    and every other error asks for a valid bearer or the connector
-    (``cookies_expired`` maps to ``bearer_invalid`` there); on the xAI
-    backend a 401/403 surfaces key-permission guidance instead of the cookie
-    fix; elsewhere the entry is today's ``cookies_expired``.
+    Use that runtime provenance before the host policy.
     """
     message = str(research_results.get("x_error") or research_results.get("x_degraded_error") or "")
     if message.startswith(x_envelope.DETAIL_NOT_PASSED):
@@ -114,9 +95,6 @@ def _x_error_prescription(config: dict, research_results: dict) -> prescriptions
     if env.x_policy(config).hint_namespace == "official":
         if http.classify_failure(message=message) == health.PAYMENT_REQUIRED:
             failure = "payment_required"
-    elif _x_active_backend_is_xai(config):
-        if http.classify_failure(message=message) == health.AUTH_FAILED:
-            failure = "xai_key_rejected"
     return prescriptions.for_x(config, failure)
 
 
