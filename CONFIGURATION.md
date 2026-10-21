@@ -641,21 +641,21 @@ Adding `--store` to any run persists every finding to a SQLite database (default
 
 Relevant tables: `topics`, `research_runs`, `findings`, `settings`. Schema: [`scripts/store.py`](skills/last30days/scripts/store.py).
 
-**Retention.** The store has no built-in automatic expiry — rows accumulate until you delete them. The database stays entirely on your machine; nothing is sent to any remote service. To purge old findings, delete the database file directly:
+**Retention.** The store has no built-in automatic expiry; rows accumulate until you delete them. Enabling the store does not upload its database to a remote service.
+
+To purge a store, first stop every research, watchlist, and other process using that database, and pause scheduled runs so they cannot reopen it during deletion. The store uses SQLite WAL mode: deleting `research.db` while a process still has it open can leave findings accessible in that process and in `research.db-wal`.
+
+Choose the database for the run you want to purge. It is `research.db` inside the effective save directory: an explicit `--save-dir` takes precedence over `LAST30DAYS_MEMORY_DIR`. If no save directory is in effect, the database is `~/.local/share/last30days/research.db`. An explicitly empty `--save-dir` disables the configured save directory and uses this global store. When `LAST30DAYS_MEMORY_DIR` is set only in `.env`, your shell does not load it. Resolve the chosen directory to an absolute path, including expanding any leading `~`, before using the command below.
+
+Deleting a store is irreversible and removes every table, including topics, run history, findings, settings, and discovery queue entries. If you need a backup, copy the database and any remaining `research.db-wal` and `research.db-shm` files together after stopping all processes. Once they are stopped, remove the chosen database and any remaining sidecars:
 
 ```bash
-# Remove the global research database (irreversible — back it up first if you want it)
-rm ~/.local/share/last30days/research.db
+# Replace this with the resolved absolute path to the database you chose.
+store_db='/absolute/path/to/research.db'
+rm -f -- "$store_db" "${store_db}-wal" "${store_db}-shm"
 ```
 
-If you set `LAST30DAYS_MEMORY_DIR`, the database lives at `<memory-dir>/research.db` instead of the default path above. If that variable is set only in your `.env` file (not exported in your shell), your shell won't expand `$LAST30DAYS_MEMORY_DIR`, so resolve the path first and pass it directly:
-
-```bash
-# Replace /path/to/memory with your actual LAST30DAYS_MEMORY_DIR value
-rm /path/to/memory/research.db
-```
-
-The engine recreates an empty database on the next `--store` run. With `--save-dir`, a scoped `research.db` lives inside that directory instead; delete that path to purge scoped runs.
+The engine recreates an empty database on the next `--store` run. This deletes only the chosen store; saved Markdown/JSON reports, library indexes, backups, and stores in other directories remain.
 
 ### Discovery topic queue (`LAST30DAYS_DISCOVERY_QUEUE`)
 
