@@ -447,7 +447,7 @@ def _build_nudge_text(
                 f"or {pip_update}."
             )
 
-    if "instagram" in bonus_errored:
+    if "instagram:failed" in bonus_errored or "instagram:no_items" in bonus_errored:
         free_suggestions.append(
             "Instagram returned 0 reels despite SC being configured. SC's "
             "v2 reels endpoint wraps Google Search and 500's frequently on "
